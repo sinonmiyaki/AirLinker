@@ -1,0 +1,43 @@
+name: Windows build
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: x64
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+      - name: Build receiver
+        shell: msys2 {0}
+        run: bash scripts/build-engine.sh
+      - name: Test and package desktop app
+        shell: pwsh
+        run: |
+          python -m pip install -r requirements.txt pyinstaller==6.12.0
+          python -m unittest discover -s tests -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python -m PyInstaller --noconfirm --clean --windowed --onedir --name AirLinker run.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Copy-Item runtime dist/AirLinker/runtime -Recurse
+          Copy-Item LICENSE,README.md,THIRD_PARTY_NOTICES.md dist/AirLinker
+          Copy-Item LICENSES dist/AirLinker/LICENSES -Recurse -Force
+          Copy-Item docs dist/AirLinker/docs -Recurse
+          New-Item -ItemType Directory dist/AirLinker/source
+          Copy-Item airlinker,scripts,installer,vendor,tests,run.py,requirements.txt dist/AirLinker/source -Recurse
+          Copy-Item scripts/configure-firewall.ps1 dist/AirLinker
+      - name: Build installer
+        shell: pwsh
+        run: |
+          if (!(Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --version=6.4.3 --yes --no-progress
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
+          ./scripts/build-installer.ps1
+      # Public installer uploads are deferred until the exact runtime's
+      # notices and corresponding sources are included. See THIRD_PARTY_NOTICES.md.
