@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+build/
+dist/
+runtime/*
+!runtime/.gitkeep
+*.spec
+.DS_Store
