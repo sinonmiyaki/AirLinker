@@ -4,7 +4,7 @@ LonelyScreen 같은 유료 미러링 앱 대신 쓸 수 있는 무료 오픈소�
 
 Windows PC를 iPhone·iPad·Mac의 **화면 미러링 수신기**로 사용하는 데스크톱 앱입니다. 기기에는 별도 앱을 설치하지 않고 제어 센터의 화면 미러링 메뉴에서 연결합니다.
 
-**현재 상태: 첫 구현 / Windows 실기기 검증 전.** 실제 AirPlay 엔진 소스와 앱 내부 영상 출력 연결부, Windows 빌드 스크립트가 포함되어 있습니다. UI만 있는 목업은 아니지만, 이 저장소를 작성한 macOS 환경에서는 Windows 네이티브 엔진을 빌드하거나 iOS 기기로 종단 간 연결을 시험하지 못했습니다. 아직 검증된 Windows 실행 파일을 제공하는 상태는 아닙니다.
+**현재 상태: 개발용 설치 파일 / Apple 실기기 연결 검증 전.** Windows CI에서 네이티브 엔진 컴파일, 앱 패키징, 설치·앱 실행·삭제 테스트를 통과했습니다. 실제 iPhone·iPad·Mac과의 종단 간 미러링은 아직 검증하지 못했습니다.
 
 ![AirLinker 앱 화면](docs/airlinker-preview.png)
 
@@ -36,9 +36,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1
 
 스크립트는 MSYS2 빌드 의존성을 설치하고, 저장소에 포함된 UxPlay 소스를 컴파일한 뒤, GStreamer 플러그인을 확인하고 데스크톱 앱을 패키징합니다. 최초 실행에는 인터넷과 충분한 디스크 공간이 필요합니다. Python 의존성은 프로젝트의 `.venv`에 설치됩니다.
 
-완료 후 `dist\installer\AirLinker-Setup-0.1.0-x64.exe`를 Windows PC에서 실행하면 설치됩니다. 시작 메뉴·바탕 화면 바로가기, 개인 LAN 방화벽 규칙, 제거 프로그램이 포함됩니다. Python·MSYS2·Inno Setup은 빌드 PC에만 필요합니다. 인증서로 서명한 배포판은 아닙니다. **현재 작업에서 실제 설치 EXE를 생성하거나 Windows에서 시험한 것은 아닙니다.**
+완료 후 `dist\installer\AirLinker-Setup-0.1.0-x64.exe`를 Windows PC에서 실행하면 설치됩니다. 시작 메뉴·바탕 화면 바로가기, 개인 LAN 방화벽 규칙, 제거 프로그램이 포함됩니다. Python·MSYS2·Inno Setup은 빌드 PC에만 필요합니다. 인증서로 서명한 배포판은 아닙니다.
 
-Windows Actions 빌드 템플릿은 `docs/windows-build.yml`에 있습니다. 현재 GitHub 인증에 workflow 쓰기 권한이 없어 자동 활성화하지 못했습니다. 권한이 있는 환경에서 `.github/workflows/windows.yml`로 옮기면 Windows 빌드와 테스트가 실행됩니다. 설치 파일의 정확한 의존성·대응 소스 확인이 끝나기 전에는 설치 EXE를 자동 업로드하지 않습니다.
+[Windows Actions](https://github.com/sinonmiyaki/AirLinker/actions/workflows/windows.yml)에서 빌드·테스트·설치/삭제 검증을 실행합니다. 성공한 실행의 Artifacts에서 `AirLinker-Setup-Windows-x64`를 받으세요. 정확한 의존성의 소스는 같은 실행의 `AirLinker-Corresponding-Source`에 제공됩니다. 아티팩트 보관 기간은 30일이며 다운로드에는 GitHub 로그인이 필요합니다.
 
 ## 연결하기
 
