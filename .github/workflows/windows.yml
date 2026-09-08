@@ -2,6 +2,7 @@ name: Windows build
 on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
+    timeout-minutes: 60
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
@@ -12,6 +13,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
+          path-type: inherit
           update: true
       - name: Build receiver
         shell: msys2 {0}
@@ -31,6 +33,9 @@ jobs:
           New-Item -ItemType Directory dist/AirLinker/source
           Copy-Item airlinker,scripts,installer,vendor,tests,run.py,requirements.txt dist/AirLinker/source -Recurse
           Copy-Item scripts/configure-firewall.ps1 dist/AirLinker
+      - name: Collect corresponding sources and licenses
+        shell: pwsh
+        run: python scripts/collect-sources.py
       - name: Build installer
         shell: pwsh
         run: |
@@ -39,5 +44,22 @@ jobs:
             if ($LASTEXITCODE) { exit $LASTEXITCODE }
           }
           ./scripts/build-installer.ps1
-      # Public installer uploads are deferred until the exact runtime's
-      # notices and corresponding sources are included. See THIRD_PARTY_NOTICES.md.
+      - name: Smoke test packaged application
+        shell: pwsh
+        run: |
+          $env:QT_QPA_PLATFORM = 'offscreen'
+          $process = Start-Process dist/AirLinker/AirLinker.exe -ArgumentList '--screenshot', 'packaged-preview.png' -PassThru
+          if (!$process.WaitForExit(30000)) { $process.Kill(); throw 'Packaged app timed out' }
+          if ($process.ExitCode -ne 0 -or !(Test-Path packaged-preview.png)) { throw 'Packaged app failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AirLinker-Corresponding-Source
+          path: dist/corresponding-source
+          compression-level: 0
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AirLinker-Setup-Windows-x64
+          path: dist/installer/*
+          compression-level: 0
+          retention-days: 30

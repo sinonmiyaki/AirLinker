@@ -3,6 +3,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 if (!(Test-Path "$MSYS2\usr\bin\bash.exe")) { throw 'Install MSYS2 from https://www.msys2.org first, then run pacman -Syu in its terminal.' }
 $env:MSYSTEM = 'UCRT64'
+$env:MSYS2_PATH_TYPE = 'inherit'
 $env:CHERE_INVOKING = '1'
 & "$MSYS2\usr\bin\bash.exe" -lc 'bash scripts/build-engine.sh'
 if ($LASTEXITCODE) { throw 'Receiver build failed.' }
@@ -22,4 +23,6 @@ Copy-Item docs dist\AirLinker\docs -Recurse -Force
 New-Item -ItemType Directory -Force dist\AirLinker\source | Out-Null
 Copy-Item airlinker,scripts,installer,vendor,tests,run.py,requirements.txt dist\AirLinker\source -Recurse -Force
 Copy-Item scripts\configure-firewall.ps1 dist\AirLinker
+& .venv\Scripts\python.exe scripts\collect-sources.py
+if ($LASTEXITCODE) { throw "Source collection failed." }
 & .\scripts\build-installer.ps1

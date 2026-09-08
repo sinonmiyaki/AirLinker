@@ -9,7 +9,7 @@ class CoreTests(unittest.TestCase):
         name = '거실 Windows; echo hello'
         args = Options(name=name).arguments(Path('C:/folder with spaces/config'), True)
         self.assertEqual(args[args.index('-n') + 1], name)
-        self.assertEqual(args[args.index('-rc') + 1], 'C:/folder with spaces/config')
+        self.assertEqual(args[args.index('-rc') + 1], str(Path('C:/folder with spaces/config')))
         self.assertEqual(args[args.index('-p') + 1], '35000')
         self.assertEqual(args[args.index('-vs') + 1], 'd3d11videosink')
 
