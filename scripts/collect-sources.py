@@ -60,6 +60,7 @@ def main():
         manifest = list(pool.map(fetch, sorted(sources.items())))
     (ROOT / 'manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     # Qt and Python source archives contain their own third-party notices too.
+    notice_index = []
     for source in ROOT.iterdir():
         if not source.name.endswith(('.tar.xz', '.tar.gz')):
             continue
@@ -72,12 +73,13 @@ def main():
                 if not (name.startswith(('license', 'copying', 'notice')) or 'LICENSES' in parts):
                     continue
                 # Never use archive paths directly as filesystem destinations.
-                destination = NOTICES / source.name / ('__'.join(parts))
-                if len(destination.name) > 170:
-                    destination = destination.with_name(hashlib.sha256(member.name.encode()).hexdigest() + '.txt')
+                identifier = hashlib.sha256((source.name + '/' + member.name).encode()).hexdigest()[:24]
+                destination = NOTICES / (identifier + '.txt')
+                notice_index.append({'file': destination.name, 'archive': source.name, 'original_path': member.name})
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 with archive.extractfile(member) as stream:
                     destination.write_bytes(stream.read())
+    (NOTICES / 'index.json').write_text(json.dumps(notice_index, indent=2), encoding='utf-8')
     for name in ['airlinker', 'vendor', 'scripts', 'installer']:
         shutil.copytree(name, ROOT / 'AirLinker' / name, dirs_exist_ok=True)
     for name in ['run.py', 'requirements.txt', 'LICENSE', 'THIRD_PARTY_NOTICES.md']:

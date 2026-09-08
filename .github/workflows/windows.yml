@@ -51,6 +51,9 @@ jobs:
           $process = Start-Process dist/AirLinker/AirLinker.exe -ArgumentList '--screenshot', 'packaged-preview.png' -PassThru
           if (!$process.WaitForExit(30000)) { $process.Kill(); throw 'Packaged app timed out' }
           if ($process.ExitCode -ne 0 -or !(Test-Path packaged-preview.png)) { throw 'Packaged app failed' }
+      - name: Test installation and removal
+        shell: pwsh
+        run: ./scripts/test-installer.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: AirLinker-Corresponding-Source
