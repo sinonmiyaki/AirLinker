@@ -1,3 +1,3 @@
 Upstream: https://github.com/FDH2/UxPlay
 Commit: 9f3c2bbc658645533fa1057e76c29ec8c947fa0f
-Local changes: AIRLINKER_WINDOW_HANDLE GstVideoOverlay integration; line-based lifecycle events; unbuffered output. See docs/architecture.md.
+Local changes: engine-owned Win32 child window bridge for AIRLINKER_WINDOW_HANDLE; D3D11 present-based streaming notification; line-based lifecycle events; unbuffered output. See docs/architecture.md.

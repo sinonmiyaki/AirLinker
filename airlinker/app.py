@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, QSettings, QStandardPaths, QTimer, QRectF
 from PySide6.QtGui import QColor, QPainter, QPen, QShortcut, QKeySequence
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
     QHBoxLayout, QPushButton, QLineEdit, QComboBox, QCheckBox, QDialog,
-    QFormLayout, QDialogButtonBox)
+    QFormLayout, QDialogButtonBox, QLabel)
 from .core import Options, find_engine
 from .receiver import Receiver
 
@@ -157,6 +157,9 @@ class Window(QMainWindow):
         center.addStretch()
         self.spinner = Spinner(self.video)
         center.addWidget(self.spinner, 0, Qt.AlignHCenter)
+        self.waiting_label = QLabel('연결 대기중', self.video)
+        self.waiting_label.setStyleSheet('color: #999;')
+        center.addWidget(self.waiting_label, 0, Qt.AlignHCenter)
         center.addStretch()
         # Compensate for the header so loading is centered in the whole client area.
         center.setContentsMargins(0, 0, 0, 84)
@@ -199,6 +202,7 @@ class Window(QMainWindow):
 
     def update_state(self, state):
         self.spinner.setVisible(state != 'streaming')
+        self.waiting_label.setVisible(state != 'streaming')
         self.video.update()
         if state in ('stopped', 'error') and self.pending_restart:
             self.pending_restart = False

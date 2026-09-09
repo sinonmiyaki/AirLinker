@@ -24,6 +24,9 @@ jobs:
           python -m pip install -r requirements.txt pyinstaller==6.12.0
           python -m unittest discover -s tests -v
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python tests/check_video_windows.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Remove-Item runtime/bin/airlinker-video-test.exe
           python -m PyInstaller --noconfirm --clean --windowed --onedir --name AirLinker run.py
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           Copy-Item runtime dist/AirLinker/runtime -Recurse

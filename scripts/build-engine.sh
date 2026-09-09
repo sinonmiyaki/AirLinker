@@ -26,3 +26,8 @@ for plugin in d3d11videosink h264parse avdec_h264 avdec_aac avdec_alac wasapisin
 done
 runtime/bin/uxplay.exe -h >/dev/null
 echo 'Engine and GStreamer plugins built successfully.'
+
+# CI-only helper: exercise production HWND ownership with real frames.
+cc tests/native/video_host.c vendor/uxplay/renderers/airlinker_window.c \
+  -Ivendor/uxplay/renderers $(pkg-config --cflags --libs gstreamer-app-1.0 gstreamer-video-1.0) \
+  -luser32 -o runtime/bin/airlinker-video-test.exe

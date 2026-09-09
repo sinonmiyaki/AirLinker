@@ -7,7 +7,7 @@ Apple 기기 제어 센터
 UxPlay (별도 프로세스, 고정된 수정 소스)
   ├─ 내장 mDNS: _airplay._tcp / _raop._tcp
   ├─ 화면/오디오 수신 → GStreamer 디코딩
-  │                       ├─ d3d11videosink → Qt 앱의 HWND
+  │                       ├─ d3d11videosink → 엔진 소유 자식 HWND → Qt 영상 영역
   │                       └─ autoaudiosink → Windows 스피커
   └─ stdout 이벤트/진단 → QProcess → 앱 상태 및 연결 로그
 ```
@@ -20,9 +20,9 @@ UxPlay (별도 프로세스, 고정된 수정 소스)
 
 ## UxPlay에 추가한 내용
 
-1. `renderers/video_renderer.c`의 파이프라인 버스에 동기 핸들러를 설치합니다. Windows에서 `AIRLINKER_WINDOW_HANDLE`의 정수 HWND를 `GstVideoOverlay`의 `prepare-window-handle` 메시지 처리 중 전달합니다. 핸들러는 UI 함수를 호출하지 않습니다.
+1. `renderers/airlinker_window.c`가 별도 메시지 스레드에서 엔진 소유 자식 HWND를 생성합니다. 부모만 `AIRLINKER_WINDOW_HANDLE`의 Qt 영상 영역입니다. GStreamer는 자신의 프로세스에 속한 HWND를 subclass하므로 다른 프로세스의 창 프로시저를 변경하지 않습니다. 부모 크기 변경은 50ms 간격으로 반영하며 파이프라인 종료 후 창과 스레드를 회수합니다.
 2. 서비스 등록 성공 뒤 `AIRLINKER/1 READY`를 stdout에 출력합니다.
-3. 첫 복호화 영상 패킷을 파이프라인에 보내는 시점에 `AIRLINKER/1 STREAMING`을 출력합니다. 이 이벤트는 수신을 뜻하며 화면에 프레임이 실제 표시됐음을 보장하지는 않습니다.
+3. d3d11videosink의 `present` 신호(디코딩된 프레임을 swapchain backbuffer에 그린 뒤 Present 호출 직전)에 `AIRLINKER/1 STREAMING`을 출력하고 영상 창을 표시합니다. 패킷 수신만으로 대기 UI가 사라지지 않습니다. 이 신호 자체가 사용자의 모니터에서 정상 출력됐다는 보장은 아니므로 Windows 회귀 테스트에서 실제 합성된 화면 픽셀도 확인합니다.
 4. 렌더러 정지/마지막 연결 종료에 `AIRLINKER/1 IDLE`을 출력합니다.
 5. stdout/stderr를 비버퍼링으로 설정해 파이프로 연결할 때 상태가 지연되지 않게 합니다.
 
@@ -42,4 +42,6 @@ UxPlay (별도 프로세스, 고정된 수정 소스)
 
 ## 간소화된 화면
 
-검은 배경, 중앙 애니메이션, 상단 설정 버튼만 표시합니다. 설정 대화상자에서 적용하면 변경된 수신 설정을 저장하고 필요한 경우 비동기로 재시작합니다. 오류 진단은 화면 설명 대신 앱 종료 시 로컬 로그로 저장합니다.
+검은 배경, 중앙 애니메이션과 ‘연결 대기중’, 상단 설정 버튼만 표시합니다. 설정 대화상자에서 적용하면 변경된 수신 설정을 저장하고 필요한 경우 비동기로 재시작합니다. 오류 진단은 화면 설명 대신 앱 종료 시 로컬 로그로 저장합니다.
+
+- [Microsoft SetWindowLongPtr: 다른 프로세스의 창 subclass 제한](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptra)

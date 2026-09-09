@@ -106,16 +106,7 @@ static char h265[] = "h265";
 static char hls[]  = "hls";
 static char jpeg[] = "jpeg";
 
-/* AirLinker: receive a pre-created native HWND from the desktop host.
- * Runs on a streaming thread; never call Qt or create windows here. */
-static GstBusSyncReply airlinker_overlay(GstBus *bus, GstMessage *message, gpointer data) {
-    if (!gst_is_video_overlay_prepare_window_handle_message(message))
-        return GST_BUS_PASS;
-    gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(GST_MESSAGE_SRC(message)),
-                                       (guintptr) data);
-    gst_message_unref(message);
-    return GST_BUS_DROP;
-}
+#include "airlinker_window.h"
 
 static void append_videoflip (GString *launch, const videoflip_t *flip, const videoflip_t *rot) {
     /* videoflip image transform */
@@ -481,17 +472,11 @@ void video_renderer_init(logger_t *render_logger, const char *server_name, video
         }
 #endif
         renderer_type[i]->bus = gst_element_get_bus(renderer_type[i]->pipeline);
-#ifdef _WIN32
-        const char *airlinker_handle = getenv("AIRLINKER_WINDOW_HANDLE");
-        if (airlinker_handle && *airlinker_handle) {
-            char *end = NULL;
-            guint64 handle = g_ascii_strtoull(airlinker_handle, &end, 10);
-            if (handle && end && !*end) {
-                gst_bus_set_sync_handler(renderer_type[i]->bus, airlinker_overlay,
-                                         (gpointer) (guintptr) handle, NULL);
-            }
+        if (!airlinker_window_attach(renderer_type[i]->pipeline)) {
+            logger_log(logger, LOGGER_ERR, "Cannot create AirLinker video output window");
+            exit(1);
         }
-#endif
+
 	
         gst_element_set_state (renderer_type[i]->pipeline, GST_STATE_READY);
         GstState state;
@@ -660,8 +645,6 @@ uint64_t video_renderer_render_buffer(unsigned char* data, int *data_len, int *n
         if (first_packet) {
             logger_log(logger, LOGGER_INFO, "Begin streaming to GStreamer video pipeline");
             first_packet = false;
-            fprintf(stdout, "AIRLINKER/1 STREAMING\n");
-            fflush(stdout);
         }
         if (!renderer || !(renderer->appsrc)) {
             logger_log(logger, LOGGER_DEBUG, "*** no video renderer found");
@@ -774,6 +757,7 @@ static void video_renderer_destroy_instance(video_renderer_t *renderer) {
             gst_object_unref (renderer->textsrc);
             renderer->textsrc = NULL;
         }	
+        gst_bus_set_sync_handler(renderer->bus, NULL, NULL, NULL);
         gst_object_unref(renderer->bus);
         gst_object_unref(renderer->pipeline);
 #ifdef X_DISPLAY_FIX

@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 $install = Join-Path $env:RUNNER_TEMP 'AirLinker-install-test'
-$setup = (Resolve-Path 'dist/installer/AirLinker-Setup-0.1.0-x64.exe').Path
+$setup = (Resolve-Path 'dist/installer/AirLinker-Setup-0.1.1-x64.exe').Path
 $p = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=`"$install`"" -PassThru
 if (!$p.WaitForExit(120000)) { $p.Kill(); throw 'Installer timed out' }
 if ($p.ExitCode -ne 0) { throw "Installer returned $($p.ExitCode)" }

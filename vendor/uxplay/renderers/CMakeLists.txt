@@ -48,6 +48,7 @@ pkg_check_modules(GST REQUIRED    gstreamer-1.0>=1.4
 add_library( renderers
              STATIC
              audio_renderer.c
+             airlinker_window.c
              video_renderer.c
              mux_renderer.c )
 
@@ -91,3 +92,7 @@ endif()
 
 
 
+
+if(WIN32)
+  target_link_libraries(renderers PUBLIC user32)
+endif()
