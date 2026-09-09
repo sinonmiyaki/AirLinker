@@ -1,5 +1,15 @@
 # 검증 기록
 
+## 설정 버튼 자동 숨김 (v0.1.2)
+
+[Windows 검증 실행](https://github.com/sinonmiyaki/AirLinker/actions/runs/34340857762), 빌드 커밋 `2323e3fd2333a1d5b9c5edec5fff9d8a5dd50cdb`.
+
+- 실제 D3D11 영상 재생 중 버튼이 위로 숨고, 상단 중앙에 마우스를 올리면 내려오는 동작 통과.
+- Windows OS 마우스 입력으로 내려온 버튼 클릭 → 설정 창 열기 → 닫은 후 다시 숨기기 통과.
+- 전체 화면의 호버 동작과 연결 종료 후 버튼 복원, 영상 재연결 통과.
+- 상태 및 프로세스 단위 테스트 13개, 앱 패키징, 실제 설치·실행·방화벽 등록·제거 검사 통과.
+- 이 빌드의 GStreamer는 1.28.7입니다. 정확한 의존성 버전과 대응 소스는 해당 Release의 manifest와 source 안내를 확인하세요.
+
 ## Windows 영상 출력 수정 (2026-09-09, v0.1.1)
 
 [최종 빌드 실행](https://github.com/sinonmiyaki/AirLinker/actions/runs/34305132410).
