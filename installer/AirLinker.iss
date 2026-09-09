@@ -1,4 +1,4 @@
-#define AppVersion "0.1.1"
+#define AppVersion "0.1.2"
 [Setup]
 AppId={{9DA55A62-8351-4F78-9AD9-EAD01D96EE4D}
 AppName=AirLinker

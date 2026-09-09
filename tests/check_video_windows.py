@@ -2,15 +2,17 @@
 Run with a Windows desktop (not QT_QPA_PLATFORM=offscreen).
 """
 import os
+import ctypes
 import sys
 import tempfile
 import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from PySide6.QtCore import QPoint, QSettings, QProcess
+from PySide6.QtCore import QPoint, QSettings, QProcess, QTimer
+from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import QApplication
-from airlinker.app import Window, STYLE
+from airlinker.app import Window, STYLE, SettingsDialog
 
 assert sys.platform == 'win32'
 sys.stdout.reconfigure(encoding='utf-8')
@@ -36,6 +38,7 @@ with tempfile.TemporaryDirectory() as directory:
     window.move(40, 40)
     window.show()
     window.raise_()
+    QCursor.setPos(window.mapToGlobal(QPoint(400, 300)))
     app.processEvents()
     helper = Path('runtime/bin/airlinker-video-test.exe').resolve()
     receiver = window.receiver
@@ -62,16 +65,41 @@ with tempfile.TemporaryDirectory() as directory:
             until(lambda: color_is(channel), f'{color} video pixels missing')
             until(lambda: receiver.state == 'streaming', 'no rendered frame event')
             assert not window.spinner.isVisible() and not window.waiting_label.isVisible()
+        until(lambda: window.top.height() == 0, 'settings did not slide away during video')
+        window.screen().grabWindow(0).save('video-render-controls-hidden.png')
+        QCursor.setPos(window.centralWidget().mapToGlobal(QPoint(window.width() // 2, 4)))
+        until(lambda: window.top.height() == 84, 'native-video hover did not reveal settings')
+        QCursor.setPos(window.settings_button.mapToGlobal(window.settings_button.rect().center()))
+        window.screen().grabWindow(0).save('video-render-controls-shown.png')
+        # Native OS mouse input also catches a foreign HWND covering the button.
+        dialog_result = []
+        def inspect_and_close_dialog():
+            dialog = app.activeModalWidget()
+            dialog_result.append(isinstance(dialog, SettingsDialog) and window.top.height() == 84)
+            if dialog:
+                QCursor.setPos(dialog.mapToGlobal(dialog.rect().center()))
+                dialog.reject()
+        QTimer.singleShot(500, inspect_and_close_dialog)
+        ctypes.windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
+        ctypes.windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
+        until(lambda: bool(dialog_result), 'settings dialog check did not run')
+        assert dialog_result == [True], 'revealed settings button was not clickable'
+        until(lambda: window.top.height() == 0, 'settings stayed open after moving away')
         window.resize(1000, 700)
         command('red')
         until(lambda: color_is(0), 'video did not survive resize')
         window.showFullScreen()
         command('green')
         until(lambda: color_is(1), 'video did not survive fullscreen')
+        QCursor.setPos(window.centralWidget().mapToGlobal(QPoint(window.width() // 2, 4)))
+        until(lambda: window.top.height() == 84, 'fullscreen hover did not reveal settings')
+        QCursor.setPos(window.mapToGlobal(QPoint(window.width() // 2, window.height() // 2)))
+        until(lambda: window.top.height() == 0, 'fullscreen settings did not hide')
         window.showNormal()
         command('stop')
         until(lambda: receiver.state == 'ready', 'disconnect did not restore waiting state')
         assert window.spinner.isVisible() and window.waiting_label.isVisible()
+        until(lambda: window.top.height() == 84, 'disconnect did not restore settings')
         command('red')
         until(lambda: color_is(0) and receiver.state == 'streaming', 'reconnect did not render')
         window.screen().grabWindow(0).save('video-render-preview.png')
@@ -83,4 +111,4 @@ with tempfile.TemporaryDirectory() as directory:
     finally:
         print('\n'.join(window.log_lines))
         window.close()
-print('Native cross-process video, colors, resize, fullscreen and reconnect passed')
+print('Native video, auto-hide, hover, native settings click, fullscreen and reconnect passed')

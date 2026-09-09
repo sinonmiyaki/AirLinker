@@ -3,8 +3,9 @@ import os
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock
-from PySide6.QtCore import QSettings
+from unittest.mock import Mock, patch
+from PySide6.QtCore import QSettings, QPoint
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from airlinker.app import Window, SettingsDialog, STYLE
 from airlinker.core import Options
@@ -27,8 +28,30 @@ with tempfile.TemporaryDirectory() as directory:
     assert not window.waiting_label.isVisible()
     assert not window.spinner.isVisible()
     assert not window.spinner.timer.isActive()
+    with patch('airlinker.app.QCursor') as cursor, patch('airlinker.app.cursor_over_window', return_value=True):
+        cursor.pos.return_value = window.mapToGlobal(QPoint(300, 300))
+        window.update_controls()
+        QTest.qWait(250)
+        assert window.top.height() == 0
+        cursor.pos.return_value = window.centralWidget().mapToGlobal(QPoint(window.width() // 2, 4))
+        window.update_controls()
+        QTest.qWait(250)
+        assert window.top.height() == 84
+        cursor.pos.return_value = window.settings_button.mapToGlobal(window.settings_button.rect().center())
+        window.update_controls()
+        assert window.top.expanded
+        cursor.pos.return_value = window.mapToGlobal(QPoint(300, 300))
+        window.settings_open = True
+        window.update_controls()
+        assert window.top.expanded
+        window.settings_open = False
+        window.update_controls()
+        QTest.qWait(250)
+        assert window.top.height() == 0
     window.update_state('ready')
     assert window.spinner.isVisible()
+    QTest.qWait(250)
+    assert window.top.height() == 84
     window.receiver.state = 'ready'
     window.receiver.stop = Mock()
     options = Options(name='Living Room')

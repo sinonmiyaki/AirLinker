@@ -10,11 +10,11 @@ Windows PC를 iPhone·iPad·Mac의 **화면 미러링 수신기**로 사용하�
 
 ## 다운로드
 
-[Windows x64 설치 파일 · 약 79MB](https://github.com/sinonmiyaki/AirLinker/releases/download/v0.1.1/AirLinker-Setup-0.1.1-x64.exe)
+[Windows x64 설치 파일 · 약 79MB](https://github.com/sinonmiyaki/AirLinker/releases/download/v0.1.2/AirLinker-Setup-0.1.2-x64.exe)
 
 일반 사용자는 위 EXE만 받으면 됩니다. Release의 `Source-*.zip` 파일은 개발·라이선스용 대응 소스로, 설치에 필요하지 않습니다. 전체 대응 소스가 약 2.2GB인 것이며 앱 설치 파일 크기는 약 79MB입니다.
 
-[Release 및 대응 소스](https://github.com/sinonmiyaki/AirLinker/releases/tag/v0.1.1)
+[Release 및 대응 소스](https://github.com/sinonmiyaki/AirLinker/releases/tag/v0.1.2)
 
 ## 구현 내용
 
@@ -44,7 +44,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1
 
 스크립트는 MSYS2 빌드 의존성을 설치하고, 저장소에 포함된 UxPlay 소스를 컴파일한 뒤, GStreamer 플러그인을 확인하고 데스크톱 앱을 패키징합니다. 최초 실행에는 인터넷과 충분한 디스크 공간이 필요합니다. Python 의존성은 프로젝트의 `.venv`에 설치됩니다.
 
-완료 후 `dist\installer\AirLinker-Setup-0.1.1-x64.exe`를 Windows PC에서 실행하면 설치됩니다. 시작 메뉴·바탕 화면 바로가기, 개인 LAN 방화벽 규칙, 제거 프로그램이 포함됩니다. Python·MSYS2·Inno Setup은 빌드 PC에만 필요합니다. 인증서로 서명한 배포판은 아닙니다.
+완료 후 `dist\installer\AirLinker-Setup-0.1.2-x64.exe`를 Windows PC에서 실행하면 설치됩니다. 시작 메뉴·바탕 화면 바로가기, 개인 LAN 방화벽 규칙, 제거 프로그램이 포함됩니다. Python·MSYS2·Inno Setup은 빌드 PC에만 필요합니다. 인증서로 서명한 배포판은 아닙니다.
 
 [Windows Actions](https://github.com/sinonmiyaki/AirLinker/actions/workflows/windows.yml)에서 빌드·테스트·설치/삭제 검증을 실행합니다. 성공한 실행의 Artifacts에서 `AirLinker-Setup-Windows-x64`를 받으세요. 정확한 의존성의 소스는 같은 실행의 `AirLinker-Corresponding-Source`에 제공됩니다. 아티팩트 보관 기간은 30일이며 다운로드에는 GitHub 로그인이 필요합니다.
 
@@ -57,7 +57,9 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1
 5. Mac: **제어 센터 → 화면 미러링 → AirLinker Windows**.
 6. 중단하려면 기기의 미러링 중단 또는 설정의 수신 끄기를 누릅니다.
 
-상단의 미러링 설정에서 값을 변경하고 적용합니다. 수신 설정이 바뀌면 자동으로 수신을 재시작합니다.
+영상이 표시되면 설정 버튼이 위로 숨습니다. 화면 상단 중앙에 마우스를 올리면 버튼이 내려옵니다.
+
+미러링 설정에서 값을 변경하고 적용합니다. 수신 설정이 바뀌면 자동으로 수신을 재시작합니다.
 
 ### 방화벽 설정이 필요한 경우
 

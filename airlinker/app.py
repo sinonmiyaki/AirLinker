@@ -3,12 +3,13 @@ import sys
 from collections import deque
 from pathlib import Path
 from PySide6.QtCore import Qt, QSettings, QStandardPaths, QTimer, QRectF
-from PySide6.QtGui import QColor, QPainter, QPen, QShortcut, QKeySequence
+from PySide6.QtGui import QColor, QPainter, QPen, QShortcut, QKeySequence, QCursor
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
     QHBoxLayout, QPushButton, QLineEdit, QComboBox, QCheckBox, QDialog,
     QFormLayout, QDialogButtonBox, QLabel)
 from .core import Options, find_engine
 from .receiver import Receiver
+from .controls import SettingsBar, cursor_over_window
 
 STYLE = '''
 QWidget { background: #000; color: #eee; font-family: "Segoe UI", "Apple SD Gothic Neo"; font-size: 14px; }
@@ -137,9 +138,8 @@ class Window(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         # Keep controls outside the native video HWND so Direct3D cannot cover them.
-        top = QWidget()
-        top.setFixedHeight(84)
-        bar = QHBoxLayout(top)
+        self.top = SettingsBar()
+        bar = QHBoxLayout(self.top.panel)
         bar.setContentsMargins(24, 20, 24, 20)
         bar.addStretch()
         self.settings_button = QPushButton('미러링 설정')
@@ -148,7 +148,7 @@ class Window(QMainWindow):
         self.settings_button.clicked.connect(self.open_settings)
         bar.addWidget(self.settings_button)
         bar.addStretch()
-        layout.addWidget(top)
+        layout.addWidget(self.top)
         self.video = QWidget()
         self.video.setAttribute(Qt.WA_NativeWindow)
         self.video.setStyleSheet('background: #000;')
@@ -163,13 +163,38 @@ class Window(QMainWindow):
         center.addStretch()
         # Compensate for the header so loading is centered in the whole client area.
         center.setContentsMargins(0, 0, 0, 84)
+        self.streaming = False
+        self.settings_open = False
+        self.hover_timer = QTimer(self)
+        self.hover_timer.setInterval(50)
+        self.hover_timer.timeout.connect(self.update_controls)
         QShortcut(QKeySequence('F11'), self, activated=self.toggle_fullscreen)
         QShortcut(QKeySequence('Escape'), self, activated=self.showNormal)
         if autostart and self.enabled:
             QTimer.singleShot(200, self.start)
 
     def open_settings(self):
-        SettingsDialog(self).exec()
+        self.settings_open = True
+        self.top.set_expanded(True)
+        try:
+            SettingsDialog(self).exec()
+        finally:
+            self.settings_open = False
+            self.update_controls()
+
+    def update_controls(self):
+        show = not self.streaming or self.settings_open
+        if not show:
+            position = QCursor.pos()
+            local = self.centralWidget().mapFromGlobal(position)
+            # Once revealed, keep the whole button reachable while the cursor
+            # travels down from the 16-pixel activation strip.
+            bottom = 94 if self.top.expanded else 16
+            show = (cursor_over_window(self, position)
+                    and abs(local.x() - self.centralWidget().width() / 2) <= 110
+                    and 0 <= local.y() < bottom)
+        self.top.set_expanded(show)
+        self.settings_button.setFocusPolicy(Qt.StrongFocus if show else Qt.NoFocus)
 
     def start(self):
         if self.closing or not self.enabled:
@@ -201,6 +226,12 @@ class Window(QMainWindow):
             self.start()
 
     def update_state(self, state):
+        self.streaming = state == 'streaming'
+        if self.streaming:
+            self.hover_timer.start()
+        else:
+            self.hover_timer.stop()
+        self.update_controls()
         self.spinner.setVisible(state != 'streaming')
         self.waiting_label.setVisible(state != 'streaming')
         self.video.update()
@@ -213,6 +244,8 @@ class Window(QMainWindow):
 
     def closeEvent(self, event):
         self.closing = True
+        self.hover_timer.stop()
+        self.top.animation.stop()
         self.pending_restart = False
         self.receiver.shutdown()
         try:

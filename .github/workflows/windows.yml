@@ -65,6 +65,14 @@ jobs:
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
+          name: AirLinker-Application-Source
+          path: |
+            dist/corresponding-source/AirLinker/
+            dist/corresponding-source/manifest.json
+            dist/corresponding-source/packages.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
           name: AirLinker-Setup-Windows-x64
           path: dist/installer/*
           compression-level: 0
