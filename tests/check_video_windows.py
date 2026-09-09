@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from PySide6.QtCore import QPoint, QSettings
+from PySide6.QtCore import QPoint, QSettings, QProcess
 from PySide6.QtWidgets import QApplication
 from airlinker.app import Window, STYLE
 
@@ -59,7 +59,7 @@ with tempfile.TemporaryDirectory() as directory:
         for color, channel in [('red', 0), ('green', 1)]:
             command(color)
             until(lambda: color_is(channel), f'{color} video pixels missing')
-            until(lambda: receiver.state == 'streaming', 'no prerolled frame event')
+            until(lambda: receiver.state == 'streaming', 'no rendered frame event')
             assert not window.spinner.isVisible() and not window.waiting_label.isVisible()
         window.resize(1000, 700)
         command('red')
@@ -75,7 +75,10 @@ with tempfile.TemporaryDirectory() as directory:
         until(lambda: color_is(0) and receiver.state == 'streaming', 'reconnect did not render')
         window.screen().grabWindow(0).save('video-render-preview.png')
         command('quit')
-        until(lambda: not receiver.process.isOpen(), 'native bridge failed to shut down')
+        until(lambda: receiver.process.state() == QProcess.NotRunning, 'native bridge failed to shut down')
+    except Exception:
+        window.screen().grabWindow(0).save('video-render-failure.png')
+        raise
     finally:
         print('\n'.join(window.log_lines))
         window.close()

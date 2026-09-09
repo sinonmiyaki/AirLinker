@@ -69,3 +69,11 @@ jobs:
           path: dist/installer/*
           compression-level: 0
           retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: AirLinker-Video-Validation
+          path: video-render-*.png
+          if-no-files-found: ignore
+          retention-days: 30

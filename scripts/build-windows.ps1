@@ -13,6 +13,9 @@ if ($LASTEXITCODE) { throw 'Install Python 3.11 x64 from python.org (including t
 if ($LASTEXITCODE) { throw 'Python dependency installation failed.' }
 & .venv\Scripts\python.exe -m unittest discover -s tests -v
 if ($LASTEXITCODE) { throw 'Tests failed.' }
+& .venv\Scripts\python.exe tests\check_video_windows.py
+if ($LASTEXITCODE) { throw 'Native video output test failed.' }
+Remove-Item runtime\bin\airlinker-video-test.exe
 & .venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --windowed --onedir --name AirLinker run.py
 if ($LASTEXITCODE) { throw 'Application packaging failed.' }
 Copy-Item runtime dist\AirLinker\runtime -Recurse -Force
