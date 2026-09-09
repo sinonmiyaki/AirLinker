@@ -13,6 +13,7 @@ from PySide6.QtWidgets import QApplication
 from airlinker.app import Window, STYLE
 
 assert sys.platform == 'win32'
+sys.stdout.reconfigure(encoding='utf-8')
 os.environ.pop('QT_QPA_PLATFORM', None)
 app = QApplication([])
 app.setStyleSheet(STYLE)
