@@ -1,20 +1,20 @@
 # AirLinker
 
-LonelyScreen 같은 유료 미러링 앱 대신 쓸 수 있는 무료 오픈소스 수신기를 만들고 싶어 시작한 프로젝트입니다. 검은 화면과 작은 설정 버튼만 두고, Apple 기기의 화면을 Windows에서 보는 데 집중합니다.
+LonelyScreen 같은 유료 미러링 앱 대신 쓸 수 있는 무료 오픈소스 수신기를 만들고 싶어 시작한 프로젝트입니다. 검은 화면에 대기 표시와 작은 설정 버튼을 두고, Apple 기기의 화면을 Windows에서 보는 데 집중합니다.
 
 Windows PC를 iPhone·iPad·Mac의 **화면 미러링 수신기**로 사용하는 데스크톱 앱입니다. 기기에는 별도 앱을 설치하지 않고 제어 센터의 화면 미러링 메뉴에서 연결합니다.
 
-**현재 상태: 개발용 설치 파일 / Apple 실기기 연결 검증 전.** Windows CI에서 네이티브 엔진 컴파일, 앱 패키징, 설치·앱 실행·삭제 테스트를 통과했습니다. 실제 iPhone·iPad·Mac과의 종단 간 미러링은 아직 검증하지 못했습니다.
+**현재 상태: Preview / Windows 영상 출력 회귀 검사 완료, 수정판 Apple 실기기 검증 필요.** Windows CI에서 네이티브 엔진 컴파일, 앱 패키징, 설치·앱 실행·삭제 테스트를 통과했습니다. 실제 iPhone·iPad·Mac과의 종단 간 미러링은 아직 검증하지 못했습니다.
 
 ![AirLinker 앱 화면](docs/airlinker-preview.png)
 
 ## 다운로드
 
-[Windows x64 설치 파일 · 약 79MB](https://github.com/sinonmiyaki/AirLinker/releases/download/v0.1.0/AirLinker-Setup-0.1.0-x64.exe)
+[Windows x64 설치 파일 · 약 79MB](https://github.com/sinonmiyaki/AirLinker/releases/download/v0.1.1/AirLinker-Setup-0.1.1-x64.exe)
 
 일반 사용자는 위 EXE만 받으면 됩니다. Release의 `Source-*.zip` 파일은 개발·라이선스용 대응 소스로, 설치에 필요하지 않습니다. 전체 대응 소스가 약 2.2GB인 것이며 앱 설치 파일 크기는 약 79MB입니다.
 
-[Release 및 대응 소스](https://github.com/sinonmiyaki/AirLinker/releases/tag/v0.1.0)
+[Release 및 대응 소스](https://github.com/sinonmiyaki/AirLinker/releases/tag/v0.1.1)
 
 ## 구현 내용
 
@@ -44,7 +44,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-windows.ps1
 
 스크립트는 MSYS2 빌드 의존성을 설치하고, 저장소에 포함된 UxPlay 소스를 컴파일한 뒤, GStreamer 플러그인을 확인하고 데스크톱 앱을 패키징합니다. 최초 실행에는 인터넷과 충분한 디스크 공간이 필요합니다. Python 의존성은 프로젝트의 `.venv`에 설치됩니다.
 
-완료 후 `dist\installer\AirLinker-Setup-0.1.0-x64.exe`를 Windows PC에서 실행하면 설치됩니다. 시작 메뉴·바탕 화면 바로가기, 개인 LAN 방화벽 규칙, 제거 프로그램이 포함됩니다. Python·MSYS2·Inno Setup은 빌드 PC에만 필요합니다. 인증서로 서명한 배포판은 아닙니다.
+완료 후 `dist\installer\AirLinker-Setup-0.1.1-x64.exe`를 Windows PC에서 실행하면 설치됩니다. 시작 메뉴·바탕 화면 바로가기, 개인 LAN 방화벽 규칙, 제거 프로그램이 포함됩니다. Python·MSYS2·Inno Setup은 빌드 PC에만 필요합니다. 인증서로 서명한 배포판은 아닙니다.
 
 [Windows Actions](https://github.com/sinonmiyaki/AirLinker/actions/workflows/windows.yml)에서 빌드·테스트·설치/삭제 검증을 실행합니다. 성공한 실행의 Artifacts에서 `AirLinker-Setup-Windows-x64`를 받으세요. 정확한 의존성의 소스는 같은 실행의 `AirLinker-Corresponding-Source`에 제공됩니다. 아티팩트 보관 기간은 30일이며 다운로드에는 GitHub 로그인이 필요합니다.
 
