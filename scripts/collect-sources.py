@@ -80,9 +80,10 @@ def main():
                 with archive.extractfile(member) as stream:
                     destination.write_bytes(stream.read())
     (NOTICES / 'index.json').write_text(json.dumps(notice_index, indent=2), encoding='utf-8')
-    for name in ['airlinker', 'vendor', 'scripts', 'installer']:
-        shutil.copytree(name, ROOT / 'AirLinker' / name, dirs_exist_ok=True)
-    for name in ['run.py', 'requirements.txt', 'LICENSE', 'THIRD_PARTY_NOTICES.md']:
+    for name in ['airlinker', 'vendor', 'scripts', 'installer', 'tests', 'docs', 'LICENSES', '.github']:
+        shutil.copytree(name, ROOT / 'AirLinker' / name, dirs_exist_ok=True,
+                        ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+    for name in ['run.py', 'requirements.txt', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'README.md']:
         shutil.copy2(name, ROOT / 'AirLinker' / name)
     shutil.copy2('runtime/packages.json', ROOT)
     shutil.copy2(ROOT / 'manifest.json', 'dist/AirLinker/source-manifest.json')
