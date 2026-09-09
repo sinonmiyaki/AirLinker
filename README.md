@@ -8,6 +8,14 @@ Windows PC를 iPhone·iPad·Mac의 **화면 미러링 수신기**로 사용하�
 
 ![AirLinker 앱 화면](docs/airlinker-preview.png)
 
+## 다운로드
+
+[Windows x64 설치 파일 · 약 79MB](https://github.com/sinonmiyaki/AirLinker/releases/download/v0.1.0/AirLinker-Setup-0.1.0-x64.exe)
+
+일반 사용자는 위 EXE만 받으면 됩니다. Release의 `Source-*.zip` 파일은 개발·라이선스용 대응 소스로, 설치에 필요하지 않습니다. 전체 대응 소스가 약 2.2GB인 것이며 앱 설치 파일 크기는 약 79MB입니다.
+
+[Release 및 대응 소스](https://github.com/sinonmiyaki/AirLinker/releases/tag/v0.1.0)
+
 ## 구현 내용
 
 - 앱 실행 시 수신 엔진 자동 시작, AirPlay 서비스 등록 완료 후 대기 상태 표시
