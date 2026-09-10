@@ -1,5 +1,13 @@
 # 검증 기록
 
+## 로고 적용 (v0.1.3)
+
+[Windows 검증 실행](https://github.com/sinonmiyaki/AirLinker/actions/runs/34422997979).
+
+- 앱 EXE와 설치 EXE의 256px 비행기 아이콘 리소스 검사 통과.
+- 영상 출력·버튼 호버/클릭·재연결, 단위 테스트 13개, 설치·실행·방화벽·제거 검사 통과.
+- SVG에서 생성한 PNG·ICO·BMP 확인 및 문서 로컬 링크 검사 완료.
+
 ## 설정 버튼 자동 숨김 (v0.1.2)
 
 [Windows 검증 실행](https://github.com/sinonmiyaki/AirLinker/actions/runs/34340857762), 빌드 커밋 `2323e3fd2333a1d5b9c5edec5fff9d8a5dd50cdb`.
