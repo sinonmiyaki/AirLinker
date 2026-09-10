@@ -17,7 +17,7 @@ if (!$ISCC) {
 if (!$ISCC) { throw 'Install Inno Setup 6 or 7, or pass -ISCC with the compiler path.' }
 & $ISCC installer\AirLinker.iss
 if ($LASTEXITCODE) { throw 'Installer compilation failed.' }
-$setup = Get-Item dist\installer\AirLinker-Setup-0.1.2-x64.exe
+$setup = Get-Item dist\installer\AirLinker-Setup-0.1.3-x64.exe
 $hash = (Get-FileHash $setup -Algorithm SHA256).Hash
 "$hash  $($setup.Name)" | Set-Content "$($setup.FullName).sha256" -Encoding ascii
 Write-Host $setup.FullName

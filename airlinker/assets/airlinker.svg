@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>AirLinker</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#448AFF"/>
+      <stop offset="1" stop-color="#1845C5"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="224" fill="url(#sky)"/>
+  <path fill="#fff" transform="rotate(35 512 512)" d="M512 178C534 178 552 200 552 232V395L748 524Q766 536 758 553L750 573Q746 583 731 578L552 519V658L612 709V745L512 713L412 745V709L472 658V519L293 578Q278 583 274 573L266 553Q258 536 276 524L472 395V232C472 200 490 178 512 178Z"/>
+</svg>

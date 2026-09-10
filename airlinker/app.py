@@ -3,13 +3,14 @@ import sys
 from collections import deque
 from pathlib import Path
 from PySide6.QtCore import Qt, QSettings, QStandardPaths, QTimer, QRectF
-from PySide6.QtGui import QColor, QPainter, QPen, QShortcut, QKeySequence, QCursor
+from PySide6.QtGui import QColor, QPainter, QPen, QShortcut, QKeySequence, QCursor, QPixmap
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
     QHBoxLayout, QPushButton, QLineEdit, QComboBox, QCheckBox, QDialog,
     QFormLayout, QDialogButtonBox, QLabel)
 from .core import Options, find_engine
 from .receiver import Receiver
 from .controls import SettingsBar, cursor_over_window
+from .branding import ASSETS, application_icon
 
 STYLE = '''
 QWidget { background: #000; color: #eee; font-family: "Segoe UI", "Apple SD Gothic Neo"; font-size: 14px; }
@@ -31,6 +32,7 @@ class Spinner(QWidget):
         super().__init__(parent)
         self.setFixedSize(40, 40)
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.mark = QPixmap(str(ASSETS / 'mark.png'))
         self.angle = 0
         self.timer = QTimer(self)
         self.timer.setInterval(16)
@@ -56,12 +58,15 @@ class Spinner(QWidget):
         painter.drawEllipse(ring)
         painter.setPen(QPen(QColor('#dadada'), 2.5, Qt.SolidLine, Qt.RoundCap))
         painter.drawArc(ring, -self.angle * 16, 95 * 16)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        painter.drawPixmap(12, 12, 16, 16, self.mark)
 
 
 class SettingsDialog(QDialog):
     def __init__(self, owner):
         super().__init__(owner)
         self.setWindowTitle('미러링 설정')
+        self.setWindowIcon(owner.windowIcon())
         self.setFixedWidth(350)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
@@ -114,6 +119,7 @@ class Window(QMainWindow):
     def __init__(self, autostart=True):
         super().__init__()
         self.setWindowTitle('AirLinker')
+        self.setWindowIcon(application_icon())
         self.resize(1100, 720)
         self.setMinimumSize(500, 360)
         self.settings = QSettings('AirLinker', 'AirLinker')
@@ -263,6 +269,7 @@ def main():
     args = parser.parse_args()
     app = QApplication(sys.argv[:1])
     app.setApplicationName('AirLinker')
+    app.setWindowIcon(application_icon())
     app.setStyle('Fusion')
     app.setStyleSheet(STYLE)
     window = Window(not args.no_autostart and not args.screenshot)

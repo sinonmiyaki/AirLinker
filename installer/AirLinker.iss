@@ -1,4 +1,4 @@
-#define AppVersion "0.1.2"
+#define AppVersion "0.1.3"
 [Setup]
 AppId={{9DA55A62-8351-4F78-9AD9-EAD01D96EE4D}
 AppName=AirLinker
@@ -11,6 +11,9 @@ OutputBaseFilename=AirLinker-Setup-{#AppVersion}-x64
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=..\airlinker\assets\airlinker.ico
+WizardSmallImageFile=..\airlinker\assets\installer-small.bmp
+WizardImageFile=..\airlinker\assets\installer-banner.bmp
 ArchitecturesAllowed=x64os
 ArchitecturesInstallIn64BitMode=x64os
 MinVersion=10.0

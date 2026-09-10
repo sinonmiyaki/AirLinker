@@ -16,7 +16,7 @@ if ($LASTEXITCODE) { throw 'Tests failed.' }
 & .venv\Scripts\python.exe tests\check_video_windows.py
 if ($LASTEXITCODE) { throw 'Native video output test failed.' }
 Remove-Item runtime\bin\airlinker-video-test.exe
-& .venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --windowed --onedir --name AirLinker run.py
+& .venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --windowed --onedir --name AirLinker --icon airlinker/assets/airlinker.ico --add-data "airlinker/assets:airlinker/assets" run.py
 if ($LASTEXITCODE) { throw 'Application packaging failed.' }
 Copy-Item runtime dist\AirLinker\runtime -Recurse -Force
 Copy-Item LICENSE,README.md,THIRD_PARTY_NOTICES.md dist\AirLinker
@@ -29,3 +29,7 @@ Copy-Item scripts\configure-firewall.ps1 dist\AirLinker
 & .venv\Scripts\python.exe scripts\collect-sources.py
 if ($LASTEXITCODE) { throw "Source collection failed." }
 & .\scripts\build-installer.ps1
+
+if ($LASTEXITCODE) { throw 'Installer build failed.' }
+& .venv\Scripts\python.exe tests\check_icons.py dist\AirLinker\AirLinker.exe 'dist/installer/*.exe'
+if ($LASTEXITCODE) { throw 'Windows icon resource verification failed.' }

@@ -19,6 +19,8 @@ with tempfile.TemporaryDirectory() as directory:
     window.settings = QSettings(str(Path(directory) / 'ui.ini'), QSettings.IniFormat)
     window.options = Options()
     window.data_dir = Path(directory)
+    assert not window.windowIcon().isNull()
+    assert not window.spinner.mark.isNull()
     window.show()
     app.processEvents()
     assert window.waiting_label.text() == '연결 대기중'
